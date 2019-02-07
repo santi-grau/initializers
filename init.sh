@@ -49,7 +49,7 @@ mkdir $(echo $varname)/app/views
   echo "    title Project title"
   echo "    link(rel='stylesheet', id='mainStylesheet' href='../css/main.styl')"
   echo "  body"
-  echo "    #main"
+  echo "    #main You should do something about this"
   echo "    script(src='../js/main.js')"
 } > $(echo $varname)/app/views/index.pug
 
@@ -57,6 +57,8 @@ mkdir $(echo $varname)/app/views
 mkdir $(echo $varname)/app/js
 {
   echo "console.log('Welcome')"
+  echo "document.body.style.background = '#'+((1<<24)*Math.random()|0).toString(16)"
+  echo "document.getElementById('main').style.color = '#'+((1<<24)*Math.random()|0).toString(16)"
 } > $(echo $varname)/app/js/main.js
 
 # Create css dir
@@ -76,7 +78,7 @@ mkdir $(echo $varname)/app/css
   echo '  "description": "",'
   echo '  "main": "index.js",'
   echo '  "scripts": {'
-  echo '    "start": "parcel app/views/index.pug --no-hmr",'
+  echo '    "start": "parcel app/views/index.pug --no-hmr --open",'
   echo '    "build": "rm -rf docs && parcel build app/views/index.pug --out-dir docs"'
   echo '  },'
   echo '  "keywords": [],'
