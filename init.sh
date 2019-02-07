@@ -1,12 +1,43 @@
 #!/bin/sh
-# ----------> Start
-echo Start project
 
-# Create root dir
-mkdir app
+# ----------> Setup
+echo ┌─────────────────────────┐
+echo │ OK! Lets get started... │
+echo └─────────────────────────┘
+read -p '└─────> Project name : ' varname
+echo
+
+if [ -d "$varname" ]; then
+  echo 😡 That directory exists!!!
+  echo 😔 Sorry, bye
+  exit
+fi
+
+# ----------> Create root directory
+mkdir $varname
+
+# ----------> Welcome :)
+npm install --prefix ./$(echo $varname) figlet
+echo
+{
+  echo "var figlet = require( 'figlet' );"
+  echo "figlet.fonts( function( err, fonts ) {"
+  echo "  var font = fonts[ Math.floor( Math.random( ) * fonts.length ) ];"
+  echo "    figlet( 'Start!', { font : font },function( err, data ) {"
+  echo "    console.log( data );"
+  echo "  });"
+  echo "});"
+} > $(echo $varname)/welcome.js
+echo
+
+node $(echo $varname)/welcome.js
+rm -rf $(echo $varname)/*
+
+# Create app dir
+mkdir $(echo $varname)/app
 
 # Create views dir
-mkdir app/views
+mkdir $(echo $varname)/app/views
 {
   echo "doctype"
   echo "html"
@@ -20,22 +51,22 @@ mkdir app/views
   echo "  body"
   echo "    #main"
   echo "    script(src='../js/main.js')"
-} > app/views/index.pug
+} > $(echo $varname)/app/views/index.pug
 
 # Create js dir
-mkdir app/js
+mkdir $(echo $varname)/app/js
 {
   echo "console.log('Welcome')"
-} > app/js/main.js
+} > $(echo $varname)/app/js/main.js
 
 # Create css dir
-mkdir app/css
+mkdir $(echo $varname)/app/css
 {
   echo "html"
   echo "    height 100%"
   echo "    padding 0"
   echo "    margin 0"
-} > app/css/main.styl
+} > $(echo $varname)/app/css/main.styl
 
 # Create package.json
 {
@@ -45,21 +76,20 @@ mkdir app/css
   echo '  "description": "",'
   echo '  "main": "index.js",'
   echo '  "scripts": {'
-  echo '    "start": "rm -rf dist/* && rm -rf cache && parcel app/views/index.pug --no-hmr",'
-  echo '    "build": "rm -rf docs && parcel build app/views/index.pug --no-source-maps --out-dir docs --public-url '.'"'
+  echo '    "start": "parcel app/views/index.pug --no-hmr",'
+  echo '    "build": "rm -rf docs && parcel build app/views/index.pug --out-dir docs"'
   echo '  },'
   echo '  "keywords": [],'
   echo '  "author": "proper-code",'
   echo '  "license": "ISC",'
   echo '  "devDependencies": {'
-  echo '    "parcel-bundler": "*",'
-  echo '    "pug": "*",'
-  echo '    "stylus": "*"'
+  echo '    "figlet": "*",'
+  echo '    "parcel-bundler": "*"'
   echo '  },'
   echo '  "dependencies": {'
   echo '  }'
   echo '}'
-} > package.json
+} > $(echo $varname)/package.json
 
 # Create .gitignore
 {
@@ -68,12 +98,17 @@ mkdir app/css
   echo "node_modules"
   echo "npm-debug.log"
   echo "package-lock.json"
-} > .gitignore
+} > $(echo $varname)/.gitignore
 
 # install
-npm i
+npm i --prefix ./$(echo $varname)
+
+# Remove stupid etc dir...
+if [ -d $(echo $varname)/etc ]; then
+  rm -rf $(echo $varname)/etc
+fi
 
 # run
-npm start
+npm start --prefix ./$(echo $varname)
 
 # ----------> End
