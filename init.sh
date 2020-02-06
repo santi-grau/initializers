@@ -53,21 +53,67 @@ mkdir $(echo $varname)/app/views
   echo "    script(src='../js/main.js')"
 } > $(echo $varname)/app/views/index.pug
 
+
 # Create js dir
 mkdir $(echo $varname)/app/js
 {
-  echo "console.log('Welcome')"
-  echo "document.body.style.background = '#'+((1<<24)*Math.random()|0).toString(16)"
-  echo "document.getElementById('main').style.color = '#'+((1<<24)*Math.random()|0).toString(16)"
+  if [ "$1" == "three" ]
+    then
+      echo "import { WebGLRenderer, OrthographicCamera, Scene } from 'three'"
+
+      echo "class Index{"
+      echo "  constructor( node ){"
+      echo "    this.node = node"
+      echo ""
+      echo "    this.renderer = new WebGLRenderer( { antialias : true, alpha : true, preserveDrawingBuffer : true } )"
+      echo "    this.node.appendChild( this.renderer.domElement )"
+      echo ""
+      echo "    this.camera = new OrthographicCamera( )"
+      echo "    this.scene = new Scene()"
+      echo ""
+      echo "    window.addEventListener('resize', () => this.resize() )"
+      echo ""
+      echo "    this.resize()"
+      echo "    this.step()"
+      echo "  }"
+      echo ""
+      echo "  resize( ){"
+      echo "    let [ width, height ] = [ this.node.offsetWidth, this.node.offsetHeight ]"
+      echo "	  this.renderer.setSize( width, height )"
+      echo "		this.renderer.setPixelRatio( 2 )"
+      echo "    var camView = { left :  width / -2, right : width / 2, top : height / 2, bottom : height / -2 }"
+      echo "    for ( var prop in camView ) this.camera[ prop ] = camView[ prop ]"
+      echo "    this.camera.position.z = 1000"
+      echo "    this.camera.updateProjectionMatrix()"
+      echo "  }"
+      echo ""
+      echo "  step( time ){"
+      echo "    requestAnimationFrame( this.step.bind( this ) )"
+      echo "    this.renderer.render( this.scene, this.camera )"
+      echo "  }"
+      echo "}"
+      echo ""
+      echo "new Index( document.getElementById( 'main'))"
+    else
+      echo "console.log('Welcome')"
+      echo "document.body.style.background = '#'+((1<<24)*Math.random()|0).toString(16)"
+      echo "document.getElementById('main').style.color = '#'+((1<<24)*Math.random()|0).toString(16)"
+  fi
 } > $(echo $varname)/app/js/main.js
 
 # Create css dir
 mkdir $(echo $varname)/app/css
 {
-  echo "html"
+  echo "html, body"
   echo "    height 100%"
   echo "    padding 0"
   echo "    margin 0"
+  if [ "$1" == "three" ]
+    then
+      echo "    overflow hidden"
+      echo "#main"
+      echo "    height 100%"
+  fi
 } > $(echo $varname)/app/css/main.styl
 
 # Create package.json
@@ -79,7 +125,7 @@ mkdir $(echo $varname)/app/css
   echo '  "main": "index.js",'
   echo '  "scripts": {'
   echo '    "start": "parcel app/views/index.pug --no-hmr --open",'
-  echo '    "build": "rm -rf docs && parcel build app/views/index.pug --out-dir docs"'
+  echo '    "build": "rm -rf docs && parcel build app/views/index.pug --no-source-maps --out-dir docs --public-url `.`"'
   echo '  },'
   echo '  "keywords": [],'
   echo '  "author": "proper-code",'
@@ -89,6 +135,7 @@ mkdir $(echo $varname)/app/css
   echo '    "parcel-bundler": "*"'
   echo '  },'
   echo '  "dependencies": {'
+  echo '    "three": "*"'
   echo '  }'
   echo '}'
 } > $(echo $varname)/package.json
